@@ -13,18 +13,21 @@
 - [x] 真机：Redmi K50 无线 adb 可见
 - [ ] 清理 `D:\Tencent\yanxin-flutter\_sdk`（2.1GB 临时 zip，F1 后删）
 
-## F1 空壳 + 依赖（进行中）
+## F1 空壳 + 依赖（analyze/test 已过，剩 APK 门禁）
 
 - [x] `flutter create --platforms=android --org com.teacodeman --project-name yanxin .`
-- [x] 锁定依赖版本（pub API 实测）：drift 2.34.4 / drift_flutter 0.3.1 / drift_dev 2.34.6 / build_runner 2.16.1 / flutter_riverpod 3.4.3 / go_router 18.0.1 / uuid 4.6.0 / path 1.9.1
-- [ ] `flutter pub get` 通过
-- [ ] `analysis_options.yaml` 收紧 lint
-- [ ] lib 目录骨架 + 空白首页
-- [ ] git init + 首次提交 + 远端（远端仓库需用户手动建）
-- [ ] 门禁：`flutter analyze` 0 issue + `flutter build apk --debug` 成功
+- [x] 依赖锁定（见 README「版本锁死的理由」）：drift 2.31.0 / drift_flutter 0.2.8 / sqlite3 2.9.4 / drift_dev 2.31.0 / build_runner 2.15.1 / flutter_riverpod 3.4.3 / go_router 18.0.1 / uuid 4.6.0
+- [x] `flutter pub get` 通过
+- [x] `analysis_options.yaml` 收紧（strict-casts/inference/raw-types + prefer_const + avoid_print 等）
+- [x] lib 骨架：main.dart（ProviderScope）+ app.dart（go_router + 占位首页）+ 冒烟测试
+- [x] `flutter analyze` → **No issues found!**
+- [x] `flutter test` → **All tests passed!**（踩坑：沙箱吞 PROGRAMFILES(X86) + 代理劫持 WebSocket，解法固化在 `env.sh` 的 `fx-test`/`fx-qa`）
+- [x] git init + 提交 `ba45fba` + 远端 origin 已配（远端仓库待用户网页创建）
+- [ ] 门禁：`flutter build apk --debug` 成功
+- [ ] F5 再装：excel / csv / gbk_codec / file_picker
 
-> **坑**：`flutter pub add` 在本机会卡死 15min+ 无输出（疑似 pub 解析器背板），改用「手查版本写 pubspec + `flutter pub get`」。
-> F5 再装：excel / csv / gbk_codec / file_picker
+> **坑**：`flutter pub add` 本机卡死 20min+ → 改「Python 查 pub API → 手写 pubspec → `pub get`」。
+> **坑**：sqlite3 3.x 带 C 构建钩子，无 VS 的 Windows 跑不了 `flutter test` → 锁 2.9.4。
 
 ## F2 core/utils
 

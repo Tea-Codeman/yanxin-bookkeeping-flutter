@@ -18,11 +18,13 @@
 
 | 关注点 | 选型 |
 |---|---|
-| 数据库 | **drift** + `drift_flutter`（编译期参数绑定，类型安全） |
+| 数据库 | **drift 2.31.0** + `drift_flutter 0.2.8` + `sqlite3 2.9.4`（编译期参数绑定，类型安全） |
 | 状态管理 | Riverpod 3 |
 | 路由 | go_router |
 | 金额 | `int` 分（ADR-2） |
 | 主键 | UUID v4，客户端发号（ADR-1） |
+
+> ⚠️ **drift/sqlite3 版本锁死的理由**：sqlite3 3.x 起带 C 构建钩子（native-assets），Windows 上 `flutter test` 需要本机 MSVC 编译器，本机无 VS 会失败。因此锁 `drift 2.31.0 / drift_flutter 0.2.8 / sqlite3 2.9.4 / build_runner 2.15.1`（build_runner 2.16+ 要求 analyzer >=13，与 drift_dev 2.31 冲突）。装了 VS Build Tools 后可整体升级。
 
 ## 目录结构
 
@@ -42,27 +44,25 @@ test/
 
 ## 本地开发
 
-每次开终端先设环境（Windows / Git Bash）：
+每次开终端先加载环境（Windows / Git Bash），它把本机所有踩坑配置都收拢了：
 
 ```bash
-export PATH="/d/Download/Flutter/flutter/bin:$PATH"
-export PUB_HOSTED_URL=https://pub.flutter-io.cn
-export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
-export JAVA_HOME="D:\\Download\\Java\\jdk-17.0.20.1+1"   # 必须是 17，勿用 JDK 25
-export ANDROID_HOME="D:\\Download\\Java\\Android"
-export ANDROID_SDK_ROOT="D:\\Download\\Java\\Android"
-unset CODEBUDDY_SESSION_ID CLAUDE_SESSION_ID   # safe-delete shim 会拦 Dart/Gradle 的临时文件删除
+source env.sh
 ```
 
 常用命令：
 
 ```bash
-flutter pub get
-dart run build_runner build --delete-conflicting-outputs   # drift 代码生成
-flutter analyze
-flutter test
+flutter pub get                                              # 走 env.sh 里的 7890 代理
+dart run build_runner build --delete-conflicting-outputs     # drift 代码生成
+fx-qa                                                        # analyze + test（自动去代理/补 VS 环境变量）
+fx-test                                                      # 只跑单测
 flutter build apk --debug
 ```
+
+> ⚠️ **`flutter test` 直接跑会踩两个坑**（env.sh 已处理）：
+> ① 沙箱吞掉了 `PROGRAMFILES(X86)`，VS 探测直接抛错 → 需手动注入；
+> ② 代理会劫持测试进程的 WebSocket（`Invalid WebSocket upgrade request`）→ 跑测试必须去代理。
 
 ## 迁移进度
 
